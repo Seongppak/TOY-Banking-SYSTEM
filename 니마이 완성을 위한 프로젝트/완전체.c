@@ -9,7 +9,7 @@ struct human
 };
 int main(void)
 {
-	struct human human_list[N] = {{100125652351, 1001}};
+	struct human human_list[N] = { {100125652351, 1001},{100152802804,1553} };
 	long long input_ac_num; // 계좌 번호 입력
 	printf("등록하신 계좌번호를 입력하십시오.:");
 	scanf("%lld", &input_ac_num);
@@ -49,9 +49,7 @@ int main(void)
 				while (1) {
 					printf("등록된 계좌의 비밀번호를 입력하십시오.:");
 					scanf("%hd", &input_pw);
-					int i;
-					for (i = 0; i < N; i++)
-					{
+					
 						if (input_pw == human_list[i].pw) // 비밀번호가 올바르게 입력 되었을 때
 						{
 							printf("비밀번호가 올바르게 입력되었습니다.");
@@ -59,7 +57,6 @@ int main(void)
 							break;
 						}
 
-					}
 					if (pw_found == 0)
 						printf("비밀번호가 틀립니다.\n"); // 비밀번호가 올바르게 입력되지 않았을 때
 					else
@@ -84,9 +81,7 @@ int main(void)
 				while (1) {
 					printf("등록된 계좌의 비밀번호를 입력하십시오.:");
 					scanf("%hd", &input_pw);
-					int i;
-					for (i = 0; i < N; i++)
-					{
+					
 						if (input_pw == human_list[i].pw) // 비밀번호가 올바르게 입력 되었을 때
 						{
 							printf("비밀번호가 올바르게 입력되었습니다.");
@@ -94,7 +89,6 @@ int main(void)
 							break;
 						}
 
-					}
 					if (pw_found == 1)
 						break;
 				}
@@ -122,9 +116,7 @@ int main(void)
 				{
 					printf("등록된 계좌의 비밀번호를 입력하십시오.:");
 					scanf("%hd", &input_pw);
-					int i;
-					for (i = 0; i < N; i++)
-					{
+
 						if (input_pw == human_list[i].pw) // 비밀번호가 올바르게 입력 되었을 때
 						{
 							printf("비밀번호가 올바르게 입력되었습니다.");
@@ -132,7 +124,6 @@ int main(void)
 							break;
 						}
 
-					}
 					if (pw_found == 0)
 						printf("비밀번호가 틀립니다.\n"); // 비밀번호가 올바르게 입력되지 않았을 때
 					else
