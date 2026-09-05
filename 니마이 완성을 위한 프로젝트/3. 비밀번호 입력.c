@@ -1,11 +1,32 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
-/*struct human { short pw; };
+#define N 20
+struct human { short pw[N]; };
 int main()
 
 {
+	struct human human_list = { 1001 };
 	short input_pw;
-	printf("ë“±ë¡ëœ ê³„ì¢Œì˜ ë¹„ë°€ë²ˆí˜¸ë¥¼ ì…ë ¥í•˜ì‹­ì‹œì˜¤.:");
-	scanf("%d", &input_pw);
-	if()
-} */
+	int found = 0;
+	while (1) {
+		printf("µî·ÏµÈ °èÁÂÀÇ ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇÏ½Ê½Ã¿À.:");
+		scanf("%hd", &input_pw);
+		int i;
+		for (i = 0; i < N; i++)
+		{
+			if (input_pw == human_list.pw[i]) // ºñ¹Ğ¹øÈ£°¡ ¿Ã¹Ù¸£°Ô ÀÔ·Â µÇ¾úÀ» ¶§
+			{
+				printf("ºñ¹Ğ¹øÈ£°¡ ¿Ã¹Ù¸£°Ô ÀÔ·ÂµÇ¾ú½À´Ï´Ù.");
+				found = 1;
+				break;
+			}
+
+		}
+		if (found == 0)
+			printf("ºñ¹Ğ¹øÈ£°¡ Æ²¸³´Ï´Ù.\n"); // ºñ¹Ğ¹øÈ£°¡ ¿Ã¹Ù¸£°Ô ÀÔ·ÂµÇÁö ¾Ê¾ÒÀ» ¶§
+		else
+			break; //¿Ã¹Ù¸£°Ô ºñ¹Ğ¹øÈ£ ÀÔ·ÂÇÏ¸é ¹«ÇÑ·çÇÁ Å»Ãâ
+	}
+	return 0;
+}
+
