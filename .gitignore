@@ -53,3 +53,21 @@ dkms.conf
 
 # debug information files
 *.dwo
+# Visual Studio 임시 파일
+.vs/
+
+# 빌드 결과
+x64/
+Debug/
+Release/
+
+# Visual Studio 개인 설정/캐시
+*.suo
+*.user
+*.VC.db
+*.VC.db-shm
+*.VC.db-wal
+*.ipch
+
+# 기타 임시 파일
+*.tmp

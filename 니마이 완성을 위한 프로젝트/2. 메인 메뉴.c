@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #define N 20
-int main()
+/*int main()
 {
 	long long original_money = 10000, in_money, after_money = 0;
 	char want_work[N];
@@ -18,4 +18,4 @@ int main()
 	}
 		
 	return 0;
-}
+} */
