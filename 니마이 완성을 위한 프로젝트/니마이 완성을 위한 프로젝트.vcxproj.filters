@@ -30,5 +30,8 @@
     <ClCompile Include="4. 작업 내용 조회.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="완전체.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
