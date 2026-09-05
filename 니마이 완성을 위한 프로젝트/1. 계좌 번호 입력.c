@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+/*#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #define N 20
 struct human
@@ -25,4 +25,4 @@ int main(void)
 	if (found == 0)
 		printf("입력하신 계좌번호를 찾을 수 없습니다.\n");
 	return 0;
-} 
+} */
