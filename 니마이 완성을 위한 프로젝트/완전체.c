@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+/*#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #define N 20
 #include <string.h>
@@ -139,4 +139,4 @@ int main(void)
 		}
 	}
 	return 0;
-}
+} */
