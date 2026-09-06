@@ -142,9 +142,9 @@
     <ClCompile Include="1. 계좌 번호 입력.c" />
     <ClCompile Include="2. 메인 메뉴.c" />
     <ClCompile Include="3. 비밀번호 입력.c" />
-    <ClCompile Include="4. 작업 내용 조회.c" />
-    <ClCompile Include="5. 추가 항목 선택.c" />
-    <ClCompile Include="6.이름 입력.c" />
+    <ClCompile Include="6. 작업 내용 조회.c" />
+    <ClCompile Include="4. 추가 항목 선택.c" />
+    <ClCompile Include="5.이름 입력.c" />
     <ClCompile Include="완전체.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
