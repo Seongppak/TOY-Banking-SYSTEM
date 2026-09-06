@@ -9,7 +9,7 @@ struct human
 };
 int main(void)
 {
-	struct human human_list[N] = { {100125652351, 1001},{100152802804,1553} };
+	struct human human_list[N] = { {100152351124, 1524 },{100144523657, 1275}, {100142566328, 1685} }; // 전산에 등록되어 있는 정보
 	long long input_ac_num; // 계좌 번호 입력
 	printf("등록하신 계좌번호를 입력하십시오.:");
 	scanf("%lld", &input_ac_num);
@@ -52,7 +52,7 @@ int main(void)
 					
 						if (input_pw == human_list[i].pw) // 비밀번호가 올바르게 입력 되었을 때
 						{
-							printf("비밀번호가 올바르게 입력되었습니다.");
+							printf("비밀번호가 올바르게 입력되었습니다.\n");
 							pw_found = 1;
 							break;
 						}
@@ -78,30 +78,28 @@ int main(void)
 			{
 				short input_pw;
 				int pw_found = 0;
-				while (1) {
+				while (1)
+				{
 					printf("등록된 계좌의 비밀번호를 입력하십시오.:");
 					scanf("%hd", &input_pw);
 					
 						if (input_pw == human_list[i].pw) // 비밀번호가 올바르게 입력 되었을 때
 						{
-							printf("비밀번호가 올바르게 입력되었습니다.");
+							printf("비밀번호가 올바르게 입력되었습니다.\n");
 							pw_found = 1;
 							break;
 						}
 
-					if (pw_found == 1)
-						break;
 				}
 					if (pw_found == 0)
 						printf("비밀번호가 틀립니다.\n"); // 비밀번호가 올바르게 입력되지 않았을 때
-					else
-						break; //올바르게 비밀번호 입력하면 무한루프 탈출
-					if (pw_found == 1) {
+					
+					if(pw_found == 1) {
 						printf("이체할 금액을 입력하여 주십시오.:");
 						scanf("%lld", &out_money);
-						if (out_money > original_money)
-							printf("이체 액수가 잔액보다 큽니다.\n");
-						else
+					if (out_money > original_money)
+						printf("이체 액수가 잔액보다 큽니다.\n");
+					else
 						{
 							original_money = original_money - out_money;
 							printf("이체가 완료 되었습니다. 현재 잔액은 %lld원 입니다.\n", original_money);
@@ -119,7 +117,7 @@ int main(void)
 
 						if (input_pw == human_list[i].pw) // 비밀번호가 올바르게 입력 되었을 때
 						{
-							printf("비밀번호가 올바르게 입력되었습니다.");
+							printf("비밀번호가 올바르게 입력되었습니다.\n");
 							pw_found = 1;
 							break;
 						}
