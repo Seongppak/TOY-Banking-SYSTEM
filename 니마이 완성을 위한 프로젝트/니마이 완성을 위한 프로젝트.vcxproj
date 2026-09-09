@@ -145,8 +145,11 @@
     <ClCompile Include="6. 작업 내용 조회%28Log 조회%29.c" />
     <ClCompile Include="4. 추가 항목 선택.c" />
     <ClCompile Include="5.이름 입력.c" />
-    <ClCompile Include="ㅅㅂ.c" />
-    <ClCompile Include="완전체.c" />
+    <ClCompile Include="bandking.c" />
+    <ClCompile Include="main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="banking.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

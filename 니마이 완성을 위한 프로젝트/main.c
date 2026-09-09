@@ -2,20 +2,10 @@
 #include <stdio.h>
 #define N 20
 #include <string.h>
+#include "banking.h"// 직접 만든 헤더파일 불러오기
 
-struct human
-{
-	long long ac_num;// 등록되어 있는 계좌번호
-	short pw; // 등록되어 있는 비밀번호
-	char name[N]; //등록되어 있는 이름
-};
 
-struct log
-{
-	char work[N]; // 작업 종류
-	long long money; // 거래 금액
-	long long balance; // 거래 후 잔액
-};
+
 
 int main(void)
 {
