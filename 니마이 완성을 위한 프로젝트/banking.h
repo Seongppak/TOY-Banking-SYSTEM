@@ -1,12 +1,14 @@
 #pragma once
 
 #define N 20
+#define MAX_ACCOUNTS 100
 
 struct human
 {
 	long long ac_num; // 등록되어 있는 계좌번호
 	short pw; // 등록되어 있는 비밀번호
 	char name[N]; // 등록되어 있는 이름
+	long long balance;
 };
 
 struct log
@@ -48,3 +50,5 @@ void save_log(
 
 // 로그 출력
 void show_log(struct log log_list[], int log_count);
+
+int read_file(const char* file_name, struct human human_list[], int max_accounts); // 파일 읽기

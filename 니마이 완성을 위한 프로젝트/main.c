@@ -3,19 +3,16 @@
 #include <string.h>
 #include "banking.h"
 
+
+
 int main(void)
 {
-	struct human human_list[] =
-	{
-		{100152351124, 1524, "±è¹éÁ¦"},
-		{100144523657, 1275, "ÀÌ¿ÂÁ¶"},
-		{100142566328, 1685, "ÃÖÄí³ó"}
-	};
+	struct human human_list[MAX_ACCOUNTS] ={0};
 
 	struct log log_list[N];
 
 	int log_count = 0;
-	int account_count = sizeof(human_list) / sizeof(human_list[0]);
+	int account_count = 0;
 	int account_index;
 	int check = 0;
 

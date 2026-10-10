@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "banking.h"
+FILE* fp;
 
 // 계좌번호 검색
 int find_account(struct human human_list[], int count, long long input_ac_num)
@@ -137,4 +138,17 @@ void show_log(struct log log_list[], int log_count)
 				log_list[i].balance);
 		}
 	}
+}
+
+int read_file(char file_name)//파일 읽기 함수
+{
+	*fp == NULL; 
+	fp = fopen("customer.info.txt", 'r');
+	if (if == NULL) 
+	{
+		printf("파일을 불러올 수 없습니다. 다시 시도해 주세요.");
+		exit(1);
+	}
+	data = [];
+	
 }
