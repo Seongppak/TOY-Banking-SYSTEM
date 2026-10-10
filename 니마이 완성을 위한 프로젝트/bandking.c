@@ -140,15 +140,49 @@ void show_log(struct log log_list[], int log_count)
 	}
 }
 
-int read_file(char file_name)//파일 읽기 함수
+int read_file(const char *file_name, struct human human_list[], int max_accounts)//파일 읽기 함수
 {
 	*fp == NULL; 
-	fp = fopen("customer.info.txt", 'r');
-	if (if == NULL) 
+	int count = 0;
+
+	fp = fopen(file_name, 'r');
+
+	if (fp == NULL);
 	{
-		printf("파일을 불러올 수 없습니다. 다시 시도해 주세요.");
+		printf("파일을 불러올 수 없습니다. 다시 시도하세요.");
 		exit(1);
 	}
-	data = [];
-	
+
+	while (1)
+	{
+		struct human temp; // temp라는 이름의 구조체에 파일에서 읽은 정보 저장
+
+		int result = fscanf(fp, "%lld %hd %s %lld",
+			&temp.ac_num,
+			&temp.pw,
+			&temp.name,
+			&temp.balance);
+
+		if (result == EOF)
+		{
+			if (ferror(fp))
+			{
+				printf("파일 일기 중 오류가 발생했습니다.\n");
+				fclose(fp);
+				exit(1);
+			}
+			break;
+		}
+		if (result != 4 || count >= max_accounts)
+		{
+			printf("파일 데이터가 잘못되었거나 계좌 수를 초과했습니다.\n");
+			fclose(fp);
+			exit(1);
+		}
+		human_list[count] = temp;
+		count++;
+	}
+	fclose(fp);
+
+	return count;
 }
