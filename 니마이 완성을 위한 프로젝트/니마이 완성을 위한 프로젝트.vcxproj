@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -72,6 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
+      <AdditionalOptions>/source-charset:.949 /execution-charset:.949 %(AdditionalOptions)</AdditionalOptions>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -88,6 +89,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
+      <AdditionalOptions>/source-charset:.949 /execution-charset:.949 %(AdditionalOptions)</AdditionalOptions>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -106,6 +108,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
+      <AdditionalOptions>/source-charset:.949 /execution-charset:.949 %(AdditionalOptions)</AdditionalOptions>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -122,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
+      <AdditionalOptions>/source-charset:.949 /execution-charset:.949 %(AdditionalOptions)</AdditionalOptions>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -139,19 +143,28 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="1. 계좌 번호 입력.c" />
-    <ClCompile Include="2. 메인 메뉴.c" />
-    <ClCompile Include="3. 비밀번호 입력.c" />
-    <ClCompile Include="6. 작업 내용 조회%28Log 조회%29.c" />
-    <ClCompile Include="4. 추가 항목 선택.c" />
-    <ClCompile Include="5.이름 입력.c" />
+    <ClCompile Include="1. 계좌 번호 입력.c"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="2. 메인 메뉴.c"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="3. 비밀번호 입력.c"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="6. 작업 내용 조회%28Log 조회%29.c"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="4. 추가 항목 선택.c"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile>
+    <ClCompile Include="5.이름 입력.c"><ExcludedFromBuild>true</ExcludedFromBuild></ClCompile>
     <ClCompile Include="bandking.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="banking.h" />
   </ItemGroup>
+  <PropertyGroup>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="customer_info.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyAccountFileForFirstRun" AfterTargets="Build">
+    <Copy SourceFiles="$(ProjectDir)customer_info.txt" DestinationFiles="$(OutDir)customer_info.txt" Condition="!Exists('$(OutDir)customer_info.txt')" />
+  </Target>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>

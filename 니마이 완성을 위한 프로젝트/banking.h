@@ -5,41 +5,41 @@
 
 struct human
 {
-	long long ac_num; // ë“±ë¡ë˜ì–´ ìˆëŠ” ê³„ì¢Œë²ˆí˜¸
-	short pw; // ë“±ë¡ë˜ì–´ ìˆëŠ” ë¹„ë°€ë²ˆí˜¸
-	char name[N]; // ë“±ë¡ë˜ì–´ ìˆëŠ” ì´ë¦„
+	long long ac_num; // µî·ÏµÇ¾î ÀÖ´Â °èÁÂ¹øÈ£
+	short pw; // µî·ÏµÇ¾î ÀÖ´Â ºñ¹Ğ¹øÈ£
+	char name[N]; // µî·ÏµÇ¾î ÀÖ´Â ÀÌ¸§
 	long long balance;
 };
 
 struct log
 {
-	char work[N]; // ì‘ì—… ì¢…ë¥˜
-	long long money; // ê±°ë˜ ê¸ˆì•¡
-	long long balance; // ê±°ë˜ í›„ ì”ì•¡
+	char work[N]; // ÀÛ¾÷ Á¾·ù
+	long long money; // °Å·¡ ±İ¾×
+	long long balance; // °Å·¡ ÈÄ ÀÜ¾×
 };
 
-// ê³„ì¢Œ ê²€ìƒ‰
+// °èÁÂ °Ë»ö
 int find_account(struct human human_list[], int count, long long input_ac_num);
 
-// ë¹„ë°€ë²ˆí˜¸ í™•ì¸
+// ºñ¹Ğ¹øÈ£ È®ÀÎ
 int check_password(struct human human_list[], int account_index, short input_pw);
 
-// ì…ê¸ˆ
+// ÀÔ±İ
 void deposit(long long* balance, long long in_money);
 
-// ì¶œê¸ˆ
+// Ãâ±İ
 int withdraw(long long* balance, long long out_money);
 
-// ì´ì²´
+// ÀÌÃ¼
 int transfer(long long* balance, long long out_money);
 
-// ì”ì•¡ì¡°íšŒ
+// ÀÜ¾×Á¶È¸
 void show_balance(long long balance);
 
-// ì´ë¦„ í™•ì¸
+// ÀÌ¸§ È®ÀÎ
 int check_name(struct human human_list[], int account_index, char input_name[]);
 
-// ë¡œê·¸ ì €ì¥
+// ·Î±× ÀúÀå
 void save_log(
 	struct log log_list[],
 	int* log_count,
@@ -48,7 +48,14 @@ void save_log(
 	long long balance
 );
 
-// ë¡œê·¸ ì¶œë ¥
+// ·Î±× Ãâ·Â
 void show_log(struct log log_list[], int log_count);
+// °èÁÂ ÆÄÀÏ ÀĞ±â ¹× ÀúÀå (½ÇÆĞ: -1, ºó ÆÄÀÏ: 0)
+int read_file(const char *file_name, struct human human_list[], int max_accounts);
+int save_file(const char *file_name, const struct human human_list[], int account_count);
 
-int read_file(const char* file_name, struct human human_list[], int max_accounts); // íŒŒì¼ ì½ê¸°
+// ¹üÀ§¸¦ °Ë»çÇÏ´Â ÀÔ·Â (¼º°ø: 1, Àß¸øµÈ ÀÔ·Â: 0, ÀÔ·Â Á¾·á: -1)
+int read_text(char text[], int size);
+int parse_number(const char text[], long long *number);
+int read_number(long long *number);
+int read_password(short *password);

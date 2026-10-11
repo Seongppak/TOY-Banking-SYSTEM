@@ -1,8 +1,14 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <limits.h>
+#include <ctype.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "banking.h"
-FILE* fp;
 
 // 계좌번호 검색
 int find_account(struct human human_list[], int count, long long input_ac_num)
@@ -139,50 +145,141 @@ void show_log(struct log log_list[], int log_count)
 		}
 	}
 }
-
-int read_file(const char *file_name, struct human human_list[], int max_accounts)//파일 읽기 함수
+// 한 줄 단위로 읽어 긴 입력의 나머지가 다음 입력에 섞이지 않도록 처리
+static int read_line(FILE *file, char text[], int size)
 {
-	*fp == NULL; 
-	int count = 0;
-
-	fp = fopen(file_name, 'r');
-
-	if (fp == NULL);
+	int ch;
+	if (fgets(text, size, file) == NULL)
+		return -1;
+	if (strchr(text, '\n') == NULL && !feof(file))
 	{
-		printf("파일을 불러올 수 없습니다. 다시 시도하세요.");
-		exit(1);
+		while ((ch = fgetc(file)) != '\n' && ch != EOF) {}
+		return 0;
 	}
+	text[strcspn(text, "\r\n")] = '\0';
+	return 1;
+}
 
-	while (1)
+int read_text(char text[], int size)
+{
+	char line[256];
+	char *start, *end;
+	int result = read_line(stdin, line, sizeof(line));
+	if (result != 1)
+		return result;
+	start = line;
+	while (isspace((unsigned char)*start)) start++;
+	end = start + strlen(start);
+	while (end > start && isspace((unsigned char)end[-1])) end--;
+	*end = '\0';
+	if (*start == '\0' || strlen(start) >= (size_t)size)
+		return 0;
+	for (end = start; *end; end++)
+		if (isspace((unsigned char)*end)) return 0;
+	strcpy(text, start);
+	return 1;
+}
+
+int parse_number(const char text[], long long *number)
+{
+	char *end;
+	long long value;
+	errno = 0;
+	value = strtoll(text, &end, 10);
+	if (errno == ERANGE || end == text || *end != '\0')
+		return 0;
+	*number = value;
+	return 1;
+}
+
+int read_number(long long *number)
+{
+	char text[64];
+	int result = read_text(text, sizeof(text));
+	return result == 1 ? parse_number(text, number) : result;
+}
+
+int read_password(short *password)
+{
+	long long number;
+	int result = read_number(&number);
+	if (result != 1) return result;
+	if (number < 0 || number > SHRT_MAX) return 0;
+	*password = (short)number;
+	return 1;
+}
+
+int read_file(const char *file_name, struct human human_list[], int max_accounts)
+{
+	FILE *file;
+	struct human loaded[MAX_ACCOUNTS];
+	char line[256], ac_num[64], pw[64], name[256], balance[64], extra;
+	long long password;
+	int count = 0, result, i;
+	if (file_name == NULL || human_list == NULL || max_accounts <= 0 || max_accounts > MAX_ACCOUNTS)
+		return -1;
+	file = fopen(file_name, "r");
+	if (file == NULL) return -1;
+	while ((result = read_line(file, line, sizeof(line))) != -1)
 	{
-		struct human temp; // temp라는 이름의 구조체에 파일에서 읽은 정보 저장
-
-		int result = fscanf(fp, "%lld %hd %s %lld",
-			&temp.ac_num,
-			&temp.pw,
-			&temp.name,
-			&temp.balance);
-
-		if (result == EOF)
-		{
-			if (ferror(fp))
-			{
-				printf("파일 일기 중 오류가 발생했습니다.\n");
-				fclose(fp);
-				exit(1);
-			}
-			break;
-		}
-		if (result != 4 || count >= max_accounts)
-		{
-			printf("파일 데이터가 잘못되었거나 계좌 수를 초과했습니다.\n");
-			fclose(fp);
-			exit(1);
-		}
-		human_list[count] = temp;
+		char *data = line;
+		// UTF-8 BOM이 있는 TXT 파일도 허용
+		if (count == 0 && strncmp(data, "\xEF\xBB\xBF", 3) == 0) data += 3;
+		if (result != 1 || count >= max_accounts ||
+			sscanf(data, "%63s %63s %255s %63s %c", ac_num, pw, name, balance, &extra) != 4 ||
+			strlen(name) >= N || !parse_number(ac_num, &loaded[count].ac_num) ||
+			!parse_number(pw, &password) || !parse_number(balance, &loaded[count].balance) ||
+			loaded[count].ac_num <= 0 || password < 0 || password > SHRT_MAX || loaded[count].balance < 0)
+			goto read_error;
+		for (i = 0; i < count; i++)
+			if (loaded[i].ac_num == loaded[count].ac_num) goto read_error;
+		loaded[count].pw = (short)password;
+		strcpy(loaded[count].name, name);
 		count++;
 	}
-	fclose(fp);
-
+	if (ferror(file)) goto read_error;
+	if (fclose(file) != 0) return -1;
+	memcpy(human_list, loaded, count * sizeof(loaded[0]));
 	return count;
+
+read_error:
+	fclose(file);
+	return -1;
+}
+
+int save_file(const char *file_name, const struct human human_list[], int account_count)
+{
+	FILE *file;
+	char temporary[1024];
+	int i, failed = 0;
+	if (file_name == NULL || human_list == NULL || account_count < 0 || account_count > MAX_ACCOUNTS ||
+		strlen(file_name) + 5 >= sizeof(temporary)) return -1;
+	sprintf(temporary, "%s.tmp", file_name);
+	file = fopen(temporary, "w");
+	if (file == NULL) return -1;
+	for (i = 0; i < account_count; i++)
+	{
+		if (fprintf(file, "%lld %hd %s %lld\n", human_list[i].ac_num,
+			human_list[i].pw, human_list[i].name, human_list[i].balance) < 0)
+		{
+			failed = 1;
+			break;
+		}
+	}
+	if (fflush(file) != 0) failed = 1;
+	if (fclose(file) != 0) failed = 1;
+	if (!failed)
+	{
+#ifdef _WIN32
+		if (!MoveFileExA(temporary, file_name, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) failed = 1;
+#else
+		if (rename(temporary, file_name) != 0) failed = 1;
+#endif
+	}
+	if (failed)
+	{
+		remove(temporary);
+		return -1;
+	}
+	return 0;
 }
