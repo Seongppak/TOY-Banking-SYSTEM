@@ -1,9 +1,16 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <limits.h>
+#include <ctype.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "banking.h"
 
-// °èÁÂ¹øÈ£ °Ë»ö
+// ê³„ì¢Œë²ˆí˜¸ ê²€ìƒ‰
 int find_account(struct human human_list[], int count, long long input_ac_num)
 {
 	int i;
@@ -19,7 +26,7 @@ int find_account(struct human human_list[], int count, long long input_ac_num)
 	return -1;
 }
 
-// ºñ¹Ğ¹øÈ£ È®ÀÎ
+// ë¹„ë°€ë²ˆí˜¸ í™•ì¸
 int check_password(struct human human_list[], int account_index, short input_pw)
 {
 	if (input_pw == human_list[account_index].pw)
@@ -30,13 +37,13 @@ int check_password(struct human human_list[], int account_index, short input_pw)
 	return 0;
 }
 
-// ÀÔ±İ
+// ì…ê¸ˆ
 void deposit(long long* balance, long long in_money)
 {
 	*balance = *balance + in_money;
 }
 
-// Ãâ±İ
+// ì¶œê¸ˆ
 int withdraw(long long* balance, long long out_money)
 {
 	if (out_money > *balance)
@@ -52,7 +59,7 @@ int withdraw(long long* balance, long long out_money)
 	}
 }
 
-// ÀÌÃ¼
+// ì´ì²´
 int transfer(long long* balance, long long out_money)
 {
 	if (out_money > *balance)
@@ -68,13 +75,13 @@ int transfer(long long* balance, long long out_money)
 	}
 }
 
-// ÀÜ¾×Á¶È¸
+// ì”ì•¡ì¡°íšŒ
 void show_balance(long long balance)
 {
-	printf("ÇöÀç ±ÍÇÏÀÇ ÀÜ¾×Àº %lld¿ø ÀÔ´Ï´Ù.\n", balance);
+	printf("í˜„ì¬ ê·€í•˜ì˜ ì”ì•¡ì€ %lldì› ì…ë‹ˆë‹¤.\n", balance);
 }
 
-// ÀÌ¸§ È®ÀÎ
+// ì´ë¦„ í™•ì¸
 int check_name(struct human human_list[], int account_index, char input_name[])
 {
 	if (strcmp(human_list[account_index].name, input_name) == 0)
@@ -85,7 +92,7 @@ int check_name(struct human human_list[], int account_index, char input_name[])
 	return 0;
 }
 
-// ·Î±× ÀúÀå
+// ë¡œê·¸ ì €ì¥
 void save_log(
 	struct log log_list[],
 	int* log_count,
@@ -105,24 +112,24 @@ void save_log(
 	}
 }
 
-// ·Î±× Ãâ·Â
+// ë¡œê·¸ ì¶œë ¥
 void show_log(struct log log_list[], int log_count)
 {
 	int i;
 
 	if (log_count == 0)
 	{
-		printf("È®ÀÎÇÒ ÀÛ¾÷ ³»¿ªÀÌ ¾ø½À´Ï´Ù.\n");
+		printf("í™•ì¸í•  ì‘ì—… ë‚´ì—­ì´ ì—†ìŠµë‹ˆë‹¤.\n");
 		return;
 	}
 
-	printf("\n------ ÀÛ¾÷ ³»¿ª ------\n");
+	printf("\n------ ì‘ì—… ë‚´ì—­ ------\n");
 
 	for (i = 0; i < log_count; i++)
 	{
-		if (strcmp(log_list[i].work, "ÀÜ¾×Á¶È¸") == 0)
+		if (strcmp(log_list[i].work, "ì”ì•¡ì¡°íšŒ") == 0)
 		{
-			printf("%d. %s / ÇöÀç ÀÜ¾× %lld¿ø\n",
+			printf("%d. %s / í˜„ì¬ ì”ì•¡ %lldì›\n",
 				i + 1,
 				log_list[i].work,
 				log_list[i].balance);
@@ -130,11 +137,149 @@ void show_log(struct log log_list[], int log_count)
 
 		else
 		{
-			printf("%d. %s / %lld¿ø / °Å·¡ ÈÄ ÀÜ¾× %lld¿ø\n",
+			printf("%d. %s / %lldì› / ê±°ë˜ í›„ ì”ì•¡ %lldì›\n",
 				i + 1,
 				log_list[i].work,
 				log_list[i].money,
 				log_list[i].balance);
 		}
 	}
+}
+// í•œ ì¤„ ë‹¨ìœ„ë¡œ ì½ì–´ ê¸´ ì…ë ¥ì˜ ë‚˜ë¨¸ì§€ê°€ ë‹¤ìŒ ì…ë ¥ì— ì„ì´ì§€ ì•Šë„ë¡ ì²˜ë¦¬
+static int read_line(FILE *file, char text[], int size)
+{
+	int ch;
+	if (fgets(text, size, file) == NULL)
+		return -1;
+	if (strchr(text, '\n') == NULL && !feof(file))
+	{
+		while ((ch = fgetc(file)) != '\n' && ch != EOF) {}
+		return 0;
+	}
+	text[strcspn(text, "\r\n")] = '\0';
+	return 1;
+}
+
+int read_text(char text[], int size)
+{
+	char line[256];
+	char *start, *end;
+	int result = read_line(stdin, line, sizeof(line));
+	if (result != 1)
+		return result;
+	start = line;
+	while (isspace((unsigned char)*start)) start++;
+	end = start + strlen(start);
+	while (end > start && isspace((unsigned char)end[-1])) end--;
+	*end = '\0';
+	if (*start == '\0' || strlen(start) >= (size_t)size)
+		return 0;
+	for (end = start; *end; end++)
+		if (isspace((unsigned char)*end)) return 0;
+	strcpy(text, start);
+	return 1;
+}
+
+int parse_number(const char text[], long long *number)
+{
+	char *end;
+	long long value;
+	errno = 0;
+	value = strtoll(text, &end, 10);
+	if (errno == ERANGE || end == text || *end != '\0')
+		return 0;
+	*number = value;
+	return 1;
+}
+
+int read_number(long long *number)
+{
+	char text[64];
+	int result = read_text(text, sizeof(text));
+	return result == 1 ? parse_number(text, number) : result;
+}
+
+int read_password(short *password)
+{
+	long long number;
+	int result = read_number(&number);
+	if (result != 1) return result;
+	if (number < 0 || number > SHRT_MAX) return 0;
+	*password = (short)number;
+	return 1;
+}
+
+int read_file(const char *file_name, struct human human_list[], int max_accounts)
+{
+	FILE *file;
+	struct human loaded[MAX_ACCOUNTS];
+	char line[256], ac_num[64], pw[64], name[256], balance[64], extra;
+	long long password;
+	int count = 0, result, i;
+	if (file_name == NULL || human_list == NULL || max_accounts <= 0 || max_accounts > MAX_ACCOUNTS)
+		return -1;
+	file = fopen(file_name, "r");
+	if (file == NULL) return -1;
+	while ((result = read_line(file, line, sizeof(line))) != -1)
+	{
+		char *data = line;
+		// UTF-8 BOMì´ ìˆëŠ” TXT íŒŒì¼ë„ í—ˆìš©
+		if (count == 0 && strncmp(data, "\xEF\xBB\xBF", 3) == 0) data += 3;
+		if (result != 1 || count >= max_accounts ||
+			sscanf(data, "%63s %63s %255s %63s %c", ac_num, pw, name, balance, &extra) != 4 ||
+			strlen(name) >= N || !parse_number(ac_num, &loaded[count].ac_num) ||
+			!parse_number(pw, &password) || !parse_number(balance, &loaded[count].balance) ||
+			loaded[count].ac_num <= 0 || password < 0 || password > SHRT_MAX || loaded[count].balance < 0)
+			goto read_error;
+		for (i = 0; i < count; i++)
+			if (loaded[i].ac_num == loaded[count].ac_num) goto read_error;
+		loaded[count].pw = (short)password;
+		strcpy(loaded[count].name, name);
+		count++;
+	}
+	if (ferror(file)) goto read_error;
+	if (fclose(file) != 0) return -1;
+	memcpy(human_list, loaded, count * sizeof(loaded[0]));
+	return count;
+
+read_error:
+	fclose(file);
+	return -1;
+}
+
+int save_file(const char *file_name, const struct human human_list[], int account_count)
+{
+	FILE *file;
+	char temporary[1024];
+	int i, failed = 0;
+	if (file_name == NULL || human_list == NULL || account_count < 0 || account_count > MAX_ACCOUNTS ||
+		strlen(file_name) + 5 >= sizeof(temporary)) return -1;
+	sprintf(temporary, "%s.tmp", file_name);
+	file = fopen(temporary, "w");
+	if (file == NULL) return -1;
+	for (i = 0; i < account_count; i++)
+	{
+		if (fprintf(file, "%lld %hd %s %lld\n", human_list[i].ac_num,
+			human_list[i].pw, human_list[i].name, human_list[i].balance) < 0)
+		{
+			failed = 1;
+			break;
+		}
+	}
+	if (fflush(file) != 0) failed = 1;
+	if (fclose(file) != 0) failed = 1;
+	if (!failed)
+	{
+#ifdef _WIN32
+		if (!MoveFileExA(temporary, file_name, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) failed = 1;
+#else
+		if (rename(temporary, file_name) != 0) failed = 1;
+#endif
+	}
+	if (failed)
+	{
+		remove(temporary);
+		return -1;
+	}
+	return 0;
 }
