@@ -321,7 +321,7 @@ int main(void)
 		{
 			short input_pw;
 			long long receiver_ac_num;
-			long long receiver_previous_balance;
+			int transfer_status;
 			int receiver_index;
 
 			while (1)
@@ -376,24 +376,27 @@ int main(void)
 				continue;
 			}
 
-			if (out_money > 0 && out_money > LLONG_MAX - human_list[receiver_index].balance)
+			transfer_status = transfer_between_accounts(
+				file_name,
+				human_list,
+				account_count,
+				account_index,
+				receiver_index,
+				out_money
+			);
+
+			if (transfer_status == TRANSFER_BALANCE_OVERFLOW)
 			{
 				printf("수취 계좌의 잔액 한도를 초과하여 이체가 취소되었습니다.\n");
 				continue;
 			}
-
-			previous_balance = human_list[account_index].balance;
-			receiver_previous_balance = human_list[receiver_index].balance;
-			if (transfer(&human_list[account_index].balance, out_money) == 1)
+			if (transfer_status == TRANSFER_SAVE_ERROR)
 			{
-				deposit(&human_list[receiver_index].balance, out_money);
-				if (save_file(file_name, human_list, account_count) != 0)
-				{
-					human_list[account_index].balance = previous_balance;
-					human_list[receiver_index].balance = receiver_previous_balance;
-					printf("파일 저장에 실패하여 거래가 취소되었습니다.\n");
-					continue;
-				}
+				printf("파일 저장에 실패하여 거래가 취소되었습니다.\n");
+				continue;
+			}
+			if (transfer_status == TRANSFER_SUCCESS)
+			{
 				printf("수취 계좌: %lld / 수취인: %s / 이체 금액: %lld원\n",
 					human_list[receiver_index].ac_num, human_list[receiver_index].name, out_money);
 				printf("이체가 완료 되었습니다. 현재 잔액은 %lld원 입니다.\n",

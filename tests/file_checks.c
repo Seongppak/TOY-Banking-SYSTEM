@@ -49,6 +49,16 @@ int main(void)
 	assert(save_file("saved.txt", accounts, 3) == 0);
 	assert(read_file("saved.txt", accounts, MAX_ACCOUNTS) == 3);
 	assert(accounts[1].balance == 25000);
+	assert(transfer_between_accounts("saved.txt", accounts, 3, -1, 1, 500) == TRANSFER_INVALID);
+	assert(transfer_between_accounts("saved.txt", accounts, 3, 0, 3, 500) == TRANSFER_INVALID);
+	assert(transfer_between_accounts("saved.txt", accounts, 3, 0, 0, 500) == TRANSFER_INVALID);
+	assert(accounts[0].balance == 10000 && accounts[1].balance == 25000);
+	assert(transfer_between_accounts("missing_directory/file.txt", accounts, 3, 0, 1, 500) == TRANSFER_SAVE_ERROR);
+	assert(accounts[0].balance == 10000 && accounts[1].balance == 25000);
+	assert(transfer_between_accounts("saved.txt", accounts, 3, 0, 1, 500) == TRANSFER_SUCCESS);
+	assert(accounts[0].balance == 9500 && accounts[1].balance == 25500);
+	assert(read_file("saved.txt", accounts, MAX_ACCOUNTS) == 3);
+	assert(accounts[0].balance == 9500 && accounts[1].balance == 25500);
 	assert(!parse_number("9223372036854775808", &number));
 	assert(!parse_number("12abc", &number));
 	assert(parse_number("9223372036854775807", &number) && number == LLONG_MAX);

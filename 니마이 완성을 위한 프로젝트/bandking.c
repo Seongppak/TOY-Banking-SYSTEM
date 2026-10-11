@@ -146,7 +146,7 @@ void show_log(struct log log_list[], int log_count)
 	}
 }
 // 한 줄 단위로 읽어 긴 입력의 나머지가 다음 입력에 섞이지 않도록 처리
-static int read_line(FILE *file, char text[], int size)
+int read_line(FILE *file, char text[], int size)
 {
 	int ch;
 	if (fgets(text, size, file) == NULL)
@@ -282,4 +282,46 @@ int save_file(const char *file_name, const struct human human_list[], int accoun
 		return -1;
 	}
 	return 0;
+}
+
+// 계좌 간 이체 및 저장
+int transfer_between_accounts(
+	const char *file_name,
+	struct human human_list[],
+	int account_count,
+	int sender_index,
+	int receiver_index,
+	long long out_money
+)
+{
+	long long sender_previous_balance;
+	long long receiver_previous_balance;
+
+	if (file_name == NULL || human_list == NULL ||
+		account_count <= 0 || account_count > MAX_ACCOUNTS ||
+		sender_index < 0 || sender_index >= account_count ||
+		receiver_index < 0 || receiver_index >= account_count ||
+		sender_index == receiver_index || out_money <= 0 ||
+		human_list[sender_index].balance < out_money ||
+		human_list[receiver_index].balance < 0)
+		return TRANSFER_INVALID;
+
+	if (out_money > LLONG_MAX - human_list[receiver_index].balance)
+		return TRANSFER_BALANCE_OVERFLOW;
+
+	sender_previous_balance = human_list[sender_index].balance;
+	receiver_previous_balance = human_list[receiver_index].balance;
+
+	if (transfer(&human_list[sender_index].balance, out_money) != 1)
+		return TRANSFER_INVALID;
+	deposit(&human_list[receiver_index].balance, out_money);
+
+	if (save_file(file_name, human_list, account_count) != 0)
+	{
+		human_list[sender_index].balance = sender_previous_balance;
+		human_list[receiver_index].balance = receiver_previous_balance;
+		return TRANSFER_SAVE_ERROR;
+	}
+
+	return TRANSFER_SUCCESS;
 }
