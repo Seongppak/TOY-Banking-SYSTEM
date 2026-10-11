@@ -320,9 +320,6 @@ int main(void)
 		else if (strcmp(want_work, "이체") == 0)
 		{
 			short input_pw;
-			long long receiver_ac_num;
-			int transfer_status;
-			int receiver_index;
 
 			while (1)
 			{
@@ -347,26 +344,6 @@ int main(void)
 				}
 			}
 
-			printf("이체할 계좌번호를 입력하십시오.:");
-			input_result = read_number(&receiver_ac_num);
-			if (input_result == -1) goto finish;
-			if (input_result != 1)
-			{
-				printf("계좌번호가 잘못되었습니다. 이체가 취소되었습니다.\n");
-				continue;
-			}
-			receiver_index = find_account(human_list, account_count, receiver_ac_num);
-			if (receiver_index == -1)
-			{
-				printf("이체할 계좌번호를 찾을 수 없습니다. 이체가 취소되었습니다.\n");
-				continue;
-			}
-			if (receiver_index == account_index)
-			{
-				printf("본인 계좌로는 이체할 수 없습니다. 이체가 취소되었습니다.\n");
-				continue;
-			}
-
 			printf("이체할 금액을 입력하여 주십시오.:");
 			input_result = read_number(&out_money);
 			if (input_result == -1) goto finish;
@@ -376,29 +353,15 @@ int main(void)
 				continue;
 			}
 
-			transfer_status = transfer_between_accounts(
-				file_name,
-				human_list,
-				account_count,
-				account_index,
-				receiver_index,
-				out_money
-			);
-
-			if (transfer_status == TRANSFER_BALANCE_OVERFLOW)
+			previous_balance = human_list[account_index].balance;
+			if (transfer(&human_list[account_index].balance, out_money) == 1)
 			{
-				printf("수취 계좌의 잔액 한도를 초과하여 이체가 취소되었습니다.\n");
-				continue;
-			}
-			if (transfer_status == TRANSFER_SAVE_ERROR)
-			{
-				printf("파일 저장에 실패하여 거래가 취소되었습니다.\n");
-				continue;
-			}
-			if (transfer_status == TRANSFER_SUCCESS)
-			{
-				printf("수취 계좌: %lld / 수취인: %s / 이체 금액: %lld원\n",
-					human_list[receiver_index].ac_num, human_list[receiver_index].name, out_money);
+				if (save_file(file_name, human_list, account_count) != 0)
+				{
+					human_list[account_index].balance = previous_balance;
+					printf("파일 저장에 실패하여 거래가 취소되었습니다.\n");
+					continue;
+				}
 				printf("이체가 완료 되었습니다. 현재 잔액은 %lld원 입니다.\n",
 					human_list[account_index].balance);
 
