@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / '니마이 완성을 위한 프로젝트'
@@ -29,6 +30,72 @@ def rows(folder):
 
 def login(account=100152351124, password=1524):
     return f'1\n{account}\n{password}\n'
+
+def test_transfers(exe, folder):
+    data = folder / 'customer_info.txt'
+    data.write_bytes(SEED)
+    process = subprocess.Popen([str(exe)], cwd=folder, stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               encoding='utf-8')
+    try:
+        process.stdin.write(login() + '이체\n1524\n100144523657\n500\n')
+        process.stdin.flush()
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline and rows(folder)[0][3] != '9500':
+            time.sleep(0.01)
+        check(process.poll() is None and [row[3] for row in rows(folder)] == ['9500', '25500', '100000'],
+              'both transfer balances saved before program exits; total conserved')
+        out, err = process.communicate('네\n김백제\n', timeout=10)
+        check(process.returncode == 0 and '수취 계좌: 100144523657 / 수취인: 이온조' in out and
+              '이체 / 500원 / 거래 후 잔액 9500원' in out, 'successful transfer confirmation and existing log')
+    finally:
+        if process.poll() is None:
+            process.kill()
+            process.communicate()
+    code, out = run(exe, folder, login(100144523657, 1275) + '잔액조회\n1275\n아니오\n종료\n')
+    check(code == 0 and '잔액은 25500원' in out, 'recipient sees received money after restart')
+    code, out = run(exe, folder, login() + '이체\n0\n1524\n100142566328\n9500\n아니오\n종료\n')
+    check(code == 0 and '비밀번호가 틀립니다.' in out and
+          [row[3] for row in rows(folder)] == ['0', '25500', '109500'], 'password retry and full-balance transfer to third account')
+    invalid = [
+        ('999999\n', '찾을 수 없습니다.', 'nonexistent recipient'),
+        ('100152351124\n', '본인 계좌', 'self transfer'),
+        ('abc\n', '계좌번호가 잘못', 'malformed recipient'),
+        ('9223372036854775808\n', '계좌번호가 잘못', 'recipient number overflow'),
+        ('100144523657\n0\n', '이체 액수가', 'zero amount'),
+        ('100144523657\n-1\n', '이체 액수가', 'negative amount'),
+        ('100144523657\n10001\n', '이체 액수가', 'insufficient funds'),
+        ('100144523657\nabc\n', '입력값이 잘못', 'malformed amount'),
+        ('100144523657\n9223372036854775808\n', '입력값이 잘못', 'amount number overflow'),
+    ]
+    for input_text, message, label in invalid:
+        data.write_bytes(SEED)
+        code, out = run(exe, folder, login() + '이체\n1524\n' + input_text + '종료\n')
+        check(code == 0 and message in out and data.read_bytes() == SEED, label + ' preserves both balances')
+    data.write_text('100152351124 1524 김백제 10000\n100144523657 1275 이온조 9223372036854775807\n', encoding='utf-8')
+    before = data.read_bytes()
+    code, out = run(exe, folder, login() + '이체\n1524\n100144523657\n1\n종료\n')
+    check(code == 0 and '잔액 한도를 초과' in out and data.read_bytes() == before, 'recipient balance overflow rejected')
+    data.write_text('100152351124 1524 김백제 10000\n100144523657 1275 이온조 9223372036854775307\n', encoding='utf-8')
+    before = data.read_bytes()
+    (folder / 'customer_info.txt.tmp').mkdir()
+    try:
+        # If the first failed save leaves +500 in recipient memory, the second transfer
+        # hits LLONG_MAX instead of reaching save_file: this detects incomplete rollback.
+        transfer_input = '이체\n1524\n100144523657\n500\n'
+        code, out = run(exe, folder, login() + transfer_input * 2 + '잔액조회\n1524\n네\n김백제\n')
+        check(code == 1 and out.count('파일 저장에 실패하여 거래가 취소되었습니다.') == 2 and
+              '잔액은 10000원' in out and '이체 /' not in out and data.read_bytes() == before,
+              'failed transfer rolls back sender AND recipient memory, file, and log')
+    finally:
+        (folder / 'customer_info.txt.tmp').rmdir()
+    data.write_bytes(SEED)
+    code, out = run(exe, folder, login() + '이체\n1524\n100144523657\n')
+    check(code == 0 and data.read_bytes() == SEED, 'EOF before transfer amount changes neither account')
+    code, out = run(exe, folder, '2\n홍길동\n100199999999\n1234\n' + login() +
+                    '이체\n1524\n100199999999\n100\n아니오\n종료\n')
+    check(code == 0 and [row[3] for row in rows(folder)] == ['9900', '25000', '100000', '100'],
+          'newly registered account can receive transfer immediately')
 
 def main():
     if not shutil.which('cl'):
@@ -91,6 +158,7 @@ def main():
         data.write_bytes(b'')
         code, out = run(exe, folder, '2\n홍길동\n46\n1234\n3\n')
         check(code == 0 and rows(folder) == [['46', '1234', '홍길동', '0']], 'empty file permits first registration')
+        test_transfers(exe, folder)
     print(f'All {TOTAL} checks passed.')
 
 if __name__ == '__main__':
