@@ -33,20 +33,6 @@ long long입니다. 이름은 공백 없이 CP949 기준 최대 19바이트입�
 임시 파일에 기록하고 Windows의 파일 교체 기능으로 반영합니다.
 저장 실패 시 등록/거래를 취소하며, 정상 종료 및 입력 종료 시에도 저장합니다.
 
-## 테스트
-
-Visual Studio Developer Command Prompt에서 Python 3로 실행합니다.
-
-```text
-python -X utf8 tests/test_banking.py
-```
-
-실제 main.c 및 bandking.c를 MSVC `/W4 /WX /source-charset:.949 /execution-charset:.949`로 빌드하고,
-임시 폴더에서 파일 오류 검사와 29개 실행 검사를 수행합니다.
-초기 잔액, 입출금, 계좌별 분리, 등록, 중복 취소, 재시작 후 유지,
-비밀번호, 기존 로그 출력, 최대 계좌 수, 입력 범위, 저장 실패 시 복구를 검사합니다.
-원본 customer_info.txt에는 테스트 데이터를 쓰지 않습니다.
-
 ## 기존 기능의 한계
 
 - 이체는 기존 구현대로 송금 계좌에서 차감만 합니다. 수취 계좌 선택과
