@@ -1,9 +1,18 @@
 {
-  "page_count": 43,
+  "page_count": 25,
   "docx_export": "Microsoft Word PDF export",
   "render": "Poppler page PNG",
-  "visual_review": "All 43 pages rendered and visually reviewed after removing test identifiers",
+  "visual_review": "All 25 pages rendered and visually reviewed after simplifying the test section",
   "console_results": "Actual executable output reproduced in monospace; input values emphasized; not IDE screenshots",
   "original_customer_files": "SHA-256 unchanged",
-  "report_test_identifiers": "Removed from table rows, headings, captions and body references; DOCX/PDF checked"
+  "report_test_identifiers": "Removed from table rows, headings, captions and body references; DOCX/PDF checked",
+  "report_test_count": 6,
+  "report_test_scope": [
+    "file read",
+    "missing file",
+    "deposit",
+    "withdrawal",
+    "file save",
+    "restart balance persistence"
+  ]
 }
