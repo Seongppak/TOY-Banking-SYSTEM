@@ -2,7 +2,8 @@
   "page_count": 43,
   "docx_export": "Microsoft Word PDF export",
   "render": "Poppler page PNG",
-  "visual_review": "All 43 final pages inspected; pages 9, 11 and 41 rechecked after last edits; remaining 40 pages pixel-identical to inspected revision",
+  "visual_review": "All 43 pages rendered and visually reviewed after removing test identifiers",
   "console_results": "Actual executable output reproduced in monospace; input values emphasized; not IDE screenshots",
-  "original_customer_files": "SHA-256 unchanged"
+  "original_customer_files": "SHA-256 unchanged",
+  "report_test_identifiers": "Removed from table rows, headings, captions and body references; DOCX/PDF checked"
 }
