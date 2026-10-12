@@ -28,3 +28,7 @@ x86/
 
 # Temporary files
 *.tmp
+
+# Local validation output
+tests/build/
+검사결과.json

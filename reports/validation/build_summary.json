@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-12",
+  "environment": "Windows Visual Studio 2026 Community MSVC v145 14.51.36231",
+  "configurations": [
+    {
+      "configuration": "Debug",
+      "platform": "x64",
+      "result": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "flags": [
+        "/W4",
+        "/TC",
+        "/std:c17",
+        "/source-charset:.949",
+        "/execution-charset:.949"
+      ]
+    },
+    {
+      "configuration": "Release",
+      "platform": "x64",
+      "result": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "flags": [
+        "/W4",
+        "/TC",
+        "/std:c17",
+        "/source-charset:.949",
+        "/execution-charset:.949"
+      ]
+    },
+    {
+      "configuration": "Debug",
+      "platform": "Win32",
+      "result": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "flags": [
+        "/W4",
+        "/TC",
+        "/std:c17",
+        "/source-charset:.949",
+        "/execution-charset:.949"
+      ]
+    },
+    {
+      "configuration": "Release",
+      "platform": "Win32",
+      "result": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "flags": [
+        "/W4",
+        "/TC",
+        "/std:c17",
+        "/source-charset:.949",
+        "/execution-charset:.949"
+      ]
+    }
+  ],
+  "launcher_smoke": "PASS original CMD copied into isolated test folder; Korean registration and file persistence verified",
+  "execution_suite": "44 records PASS; 42 test IDs plus 2 restart preparation runs",
+  "remaining_manual_checks": [
+    "Visual Studio F5 CTRL+F5 console 949 and IME appearance",
+    "actual power interruption and physical disk failure"
+  ],
+  "ctrl_z_smoke": {
+    "result": "PASS",
+    "input": "original 3 CP949 records + byte 0x1A + incomplete account row",
+    "actual": "COUNT=-1 UNCHANGED=1",
+    "original_test_copy_unchanged": true,
+    "read_mode": "rb"
+  }
+}

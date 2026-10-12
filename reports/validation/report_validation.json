@@ -1,0 +1,8 @@
+{
+  "page_count": 43,
+  "docx_export": "Microsoft Word PDF export",
+  "render": "Poppler page PNG",
+  "visual_review": "All 43 final pages inspected; pages 9, 11 and 41 rechecked after last edits; remaining 40 pages pixel-identical to inspected revision",
+  "console_results": "Actual executable output reproduced in monospace; input values emphasized; not IDE screenshots",
+  "original_customer_files": "SHA-256 unchanged"
+}

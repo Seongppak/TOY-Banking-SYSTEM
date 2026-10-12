@@ -5,9 +5,6 @@
 #include <errno.h>
 #include <limits.h>
 #include <ctype.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 #include "banking.h"
 
 // 계좌번호 검색
@@ -148,15 +145,18 @@ void show_log(struct log log_list[], int log_count)
 // 한 줄 단위로 읽어 긴 입력의 나머지가 다음 입력에 섞이지 않도록 처리
 static int read_line(FILE *file, char text[], int size)
 {
-	int ch;
-	if (fgets(text, size, file) == NULL)
-		return -1;
-	if (strchr(text, '\n') == NULL && !feof(file))
+	int ch, length = 0, invalid = 0;
+	while ((ch = fgetc(file)) != '\n' && ch != EOF)
 	{
-		while ((ch = fgetc(file)) != '\n' && ch != EOF) {}
-		return 0;
+		if (ch == '\0') invalid = 1;
+		if (length < size - 1) text[length++] = (char)ch;
+		else invalid = 1;
 	}
-	text[strcspn(text, "\r\n")] = '\0';
+	text[length] = '\0';
+	if (ferror(file)) return -1;
+	if (ch == EOF && length == 0 && !invalid) return -1;
+	if (invalid) return 0;
+	if (length > 0 && text[length - 1] == '\r') text[length - 1] = '\0';
 	return 1;
 }
 
@@ -218,15 +218,12 @@ int read_file(const char *file_name, struct human human_list[], int max_accounts
 	int count = 0, result, i;
 	if (file_name == NULL || human_list == NULL || max_accounts <= 0 || max_accounts > MAX_ACCOUNTS)
 		return -1;
-	file = fopen(file_name, "r");
+	file = fopen(file_name, "rb");
 	if (file == NULL) return -1;
 	while ((result = read_line(file, line, sizeof(line))) != -1)
 	{
-		char *data = line;
-		// UTF-8 BOM이 있는 TXT 파일도 허용
-		if (count == 0 && strncmp(data, "\xEF\xBB\xBF", 3) == 0) data += 3;
 		if (result != 1 || count >= max_accounts ||
-			sscanf(data, "%63s %63s %255s %63s %c", ac_num, pw, name, balance, &extra) != 4 ||
+			sscanf(line, "%63s %63s %255s %63s %c", ac_num, pw, name, balance, &extra) != 4 ||
 			strlen(name) >= N || !parse_number(ac_num, &loaded[count].ac_num) ||
 			!parse_number(pw, &password) || !parse_number(balance, &loaded[count].balance) ||
 			loaded[count].ac_num <= 0 || password < 0 || password > SHRT_MAX || loaded[count].balance < 0)
@@ -250,11 +247,32 @@ read_error:
 int save_file(const char *file_name, const struct human human_list[], int account_count)
 {
 	FILE *file;
-	char temporary[1024];
+	char temporary[1024], backup[1024];
 	int i, failed = 0;
 	if (file_name == NULL || human_list == NULL || account_count < 0 || account_count > MAX_ACCOUNTS ||
-		strlen(file_name) + 5 >= sizeof(temporary)) return -1;
+		strlen(file_name) + 5 > sizeof(temporary)) return -1;
 	sprintf(temporary, "%s.tmp", file_name);
+	sprintf(backup, "%s.bak", file_name);
+
+	file = fopen(file_name, "r");
+	if (file == NULL) return -1;
+	if (fclose(file) != 0) return -1;
+	file = fopen(backup, "r");
+	if (file != NULL)
+	{
+		fclose(file);
+		printf("백업 파일이 남아 있습니다. %s를 확인하십시오.\n", backup);
+		return -1;
+	}
+	if (errno != ENOENT) return -1;
+	file = fopen(temporary, "r");
+	if (file != NULL)
+	{
+		fclose(file);
+		printf("임시 파일이 남아 있습니다. %s를 확인하십시오.\n", temporary);
+		return -1;
+	}
+	if (errno != ENOENT) return -1;
 	file = fopen(temporary, "w");
 	if (file == NULL) return -1;
 	for (i = 0; i < account_count; i++)
@@ -268,18 +286,19 @@ int save_file(const char *file_name, const struct human human_list[], int accoun
 	}
 	if (fflush(file) != 0) failed = 1;
 	if (fclose(file) != 0) failed = 1;
-	if (!failed)
-	{
-#ifdef _WIN32
-		if (!MoveFileExA(temporary, file_name, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) failed = 1;
-#else
-		if (rename(temporary, file_name) != 0) failed = 1;
-#endif
-	}
-	if (failed)
+	if (failed || rename(file_name, backup) != 0)
 	{
 		remove(temporary);
 		return -1;
 	}
+	if (rename(temporary, file_name) != 0)
+	{
+		if (rename(backup, file_name) != 0)
+			printf("기존 파일 복구에 실패했습니다. %s와 %s를 보존하고 확인하십시오.\n", backup, temporary);
+		else remove(temporary);
+		return -1;
+	}
+	if (remove(backup) != 0)
+		printf("저장은 완료되었으나 백업 파일을 지우지 못했습니다. %s를 확인하십시오.\n", backup);
 	return 0;
 }

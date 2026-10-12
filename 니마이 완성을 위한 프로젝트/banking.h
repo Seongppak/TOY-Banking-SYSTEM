@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BANKING_H
+#define BANKING_H
 
 #define N 20
 #define MAX_ACCOUNTS 100
@@ -59,3 +60,5 @@ int read_text(char text[], int size);
 int parse_number(const char text[], long long *number);
 int read_number(long long *number);
 int read_password(short *password);
+
+#endif

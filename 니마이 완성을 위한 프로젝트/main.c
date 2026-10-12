@@ -2,9 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 #include "banking.h"
 
 int main(void)
@@ -28,10 +25,6 @@ int main(void)
 
 	char want_work[N];
 
-#ifdef _WIN32
-	SetConsoleCP(949);
-	SetConsoleOutputCP(949);
-#endif
 	account_count = read_file(file_name, human_list, MAX_ACCOUNTS);
 	if (account_count < 0)
 	{
@@ -350,6 +343,7 @@ start_menu:
 				}
 			}
 
+			printf("현재 이체는 송금 계좌에서 차감만 하며 수취 계좌에 입금하지 않습니다.\n");
 			printf("이체할 금액을 입력하여 주십시오.:");
 			input_result = read_number(&out_money);
 			if (input_result == -1) goto finish;
@@ -368,7 +362,7 @@ start_menu:
 					printf("파일 저장에 실패하여 거래가 취소되었습니다.\n");
 					continue;
 				}
-				printf("이체가 완료 되었습니다. 현재 잔액은 %lld원 입니다.\n",
+				printf("이체 금액 차감이 완료 되었습니다. 현재 잔액은 %lld원 입니다.\n",
 					human_list[account_index].balance);
 
 				save_log(
