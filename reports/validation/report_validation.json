@@ -2,7 +2,7 @@
   "page_count": 25,
   "docx_export": "Microsoft Word PDF export",
   "render": "Poppler page PNG",
-  "visual_review": "All 25 pages rendered and visually reviewed after simplifying the test section",
+  "visual_review": "After contents removal, page 1 visually reviewed; remaining 24 pages pixel-identical to previously reviewed version",
   "console_results": "Actual executable output reproduced in monospace; input values emphasized; not IDE screenshots",
   "original_customer_files": "SHA-256 unchanged",
   "report_test_identifiers": "Removed from table rows, headings, captions and body references; DOCX/PDF checked",
@@ -14,5 +14,6 @@
     "withdrawal",
     "file save",
     "restart balance persistence"
-  ]
+  ],
+  "table_of_contents": "Removed"
 }
