@@ -1,9 +1,9 @@
 {
-  "page_count": 25,
+  "page_count": 28,
   "docx_export": "Microsoft Word PDF export",
   "render": "Poppler page PNG",
-  "visual_review": "After contents removal, page 1 visually reviewed; remaining 24 pages pixel-identical to previously reviewed version",
-  "console_results": "Actual executable output reproduced in monospace; input values emphasized; not IDE screenshots",
+  "visual_review": "All 28 pages inspected; final execution pages rechecked after grouping console scenes",
+  "console_results": "Actual execution transcripts reproduced in monospace, not IDE screenshots",
   "original_customer_files": "SHA-256 unchanged",
   "report_test_identifiers": "Removed from table rows, headings, captions and body references; DOCX/PDF checked",
   "report_test_count": 6,
@@ -15,5 +15,8 @@
     "file save",
     "restart balance persistence"
   ],
-  "table_of_contents": "Removed"
+  "table_of_contents": "Removed",
+  "reference_format": "User supplied Word report; original headings, author details, first sections, 3 diagrams, margins and table formats retained",
+  "code_check": "All three code blocks exactly match current CP949 repository sources",
+  "original_reference": "Unchanged"
 }
