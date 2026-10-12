@@ -71,5 +71,6 @@
     "actual": "COUNT=-1 UNCHANGED=1",
     "original_test_copy_unchanged": true,
     "read_mode": "rb"
-  }
+  },
+  "account_entry_change": "All four configurations rebuilt without warnings/errors; 44 execution records PASS; account-only menu entry and password retry during withdrawal verified"
 }

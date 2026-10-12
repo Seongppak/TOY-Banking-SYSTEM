@@ -66,7 +66,7 @@ def balance(b,n=10000): return int(rows(b)[0][3])==n
 def normal(o,b,c,f): must(c==0 and len(rows(b))==3)
 def nochange(o,b,c,f): must(c==0 and b==BASE)
 def invalidfile(o,b,c,f): must('COUNT=-1 UNCHANGED=1' in o and c==1)
-LOGIN=['1','100152351124','1524']
+LOGIN=['1','100152351124']
 run('TC-01','read_file','정상 계좌 3개와 CP949 이름을 확인',[], 'COUNT=3, 김백제 10000, 이온조 25000, 최쿠농 100000','파일 누락 읽기 및 한글 손상',driver=True,check=lambda o,b,c,f:must('COUNT=3' in o and '김백제 10000' in o and '이온조 25000' in o and '최쿠농 100000' in o and b==BASE))
 run('TC-02','read_file','파일 없음은 오류이며 새 파일을 만들지 않음',[], 'COUNT=-1, 배열 불변, 종료 코드 1, 파일 생성 안 함','없는 데이터의 정상 사용',data=None,driver=True,check=lambda o,b,c,f:must('COUNT=-1 UNCHANGED=1' in o and c==1 and b is None))
 run('TC-03','read_file','빈 파일에서 첫 사용자를 등록할 수 있음',['2','홍길동','100199999999','1234','3'],'등록 계좌 1개, 홍길동, 초기 잔액 0','빈 파일과 오류 혼동',data=b'',check=lambda o,b,c,f:must('등록된 계좌가 없습니다.' in o and c==0 and rows(b)==[['100199999999','1234','홍길동','0']]))
@@ -74,10 +74,10 @@ run('TC-04','read_file','정상 첫 줄 뒤 누락된 두 번째 줄도 전체 �
 run('TC-05','read_file','파일 내부 중복 계좌 전체 거부',[], 'COUNT=-1, 배열 불변','같은 계좌의 다른 잔액 혼용',data=BASE+BASE.splitlines(keepends=True)[0],driver=True,check=invalidfile)
 run('TC-06','read_file','100번째 계좌까지 정상 읽기',[], 'COUNT=100, ACCOUNT 출력 100개','배열 경계의 정상 계좌 누락',data=account_bytes(100),driver=True,check=lambda o,b,c,f:must('COUNT=100' in o and o.count('ACCOUNT=')==100 and c==0))
 run('TC-07','read_file','101개 파일은 전체 오류',[], 'COUNT=-1, 배열 불변','배열 범위 초과',data=account_bytes(101),driver=True,check=invalidfile)
-run('TC-08','find_account 로그인','정상 계좌번호로 작업 메뉴 진입',LOGIN+['메인메뉴','3'],'작업 메뉴 표시 후 시작 메뉴로 복귀','정상 계좌 검색 실패',check=lambda o,b,c,f:must('원하시는 작업을 입력해주세요' in o and b==BASE and c==0))
+run('TC-08','find_account 로그인','계좌번호만으로 작업 메뉴 진입, 비밀번호 질문 없음',LOGIN+['메인메뉴','3'],'작업 메뉴 표시 후 시작 메뉴로 복귀','정상 계좌 검색 실패',check=lambda o,b,c,f:must('원하시는 작업을 입력해주세요' in o and '비밀번호' not in o and b==BASE and c==0))
 run('TC-09','find_account 로그인','미등록 계좌는 비밀번호를 묻지 않음',['1','100100000001','3'],'계좌번호를 찾을 수 없습니다; 시작 메뉴 복귀','다른 계좌를 잘못 선택',check=lambda o,b,c,f:must('계좌번호를 찾을 수 없습니다.' in o and '비밀번호를 입력' not in o and b==BASE))
-run('TC-10','check_password','올바른 로그인 및 잔액조회 비밀번호',LOGIN+['잔액조회','1524','아니오','3'],'비밀번호 확인 및 잔액 10000','정상 인증 거부',check=lambda o,b,c,f:must('비밀번호가 올바르게 입력되었습니다.' in o and '현재 귀하의 잔액은 10000원 입니다.' in o and b==BASE))
-run('TC-11','check_password','로그인 비밀번호 오류 후 시작 메뉴 복귀',['1','100152351124','1111','3'],'비밀번호가 틀립니다; 작업 메뉴 미진입','인증 실패 후 거래 허용',check=lambda o,b,c,f:must('비밀번호가 틀립니다.' in o and '원하시는 작업을 입력해주세요' not in o and b==BASE))
+run('TC-10','check_password','계좌번호로 진입 후 올바른 잔액조회 비밀번호',LOGIN+['잔액조회','1524','아니오','3'],'비밀번호 확인 및 잔액 10000','정상 인증 거부',check=lambda o,b,c,f:must('비밀번호가 올바르게 입력되었습니다.' in o and '현재 귀하의 잔액은 10000원 입니다.' in o and b==BASE))
+run('TC-11','check_password','출금 비밀번호 오류 뒤 정상 비밀번호로 재인증',LOGIN+['출금','1111','1524','3000','아니오','3'],'잘못된 비밀번호 거부 후 재입력, 정상 비밀번호 확인 뒤 잔액 7000','인증 실패 상태에서 출금 허용',check=lambda o,b,c,f:must('비밀번호가 틀립니다.' in o and o.index('비밀번호가 틀립니다.')<o.index('비밀번호가 올바르게 입력되었습니다.')<o.index('출금할 금액') and balance(b,7000) and c==0))
 run('TC-12','deposit','10000원 계좌에 5000원 입금',LOGIN+['입금','5000','아니오','3'],'잔액 15000, 나머지 계좌 불변','입금 계산 또는 대상 계좌 오류',check=lambda o,b,c,f:must('현재 잔액은 15000원' in o and balance(b,15000) and rows(b)[1:]==rows(BASE)[1:] and c==0))
 run('TC-13','deposit','0원 입금 거부',LOGIN+['입금','0','메인메뉴','3'],'입금 금액이 올바르지 않습니다; 10000 유지','무의미한 거래 처리',check=lambda o,b,c,f:must('입금 금액이 올바르지 않습니다.' in o and b==BASE))
 run('TC-14','deposit','음수 입금 거부',LOGIN+['입금','-5000','메인메뉴','3'],'입금 거부, 10000 유지','음수 입금으로 잔액 감소',check=lambda o,b,c,f:must('입금 금액이 올바르지 않습니다.' in o and b==BASE))
@@ -88,7 +88,7 @@ run('TC-18','신규 등록 save_file','새 계좌를 잔액 0으로 저장',['2'
 DUP='이미 등록된 계좌번호입니다.\n사용자 등록이 취소되었습니다.\n\n메인 메뉴로 돌아갑니다.\n'
 run('TC-19','신규 등록 중복 검사','중복 계좌 즉시 취소하고 비밀번호 추가 질문 없음',['2','홍길동','100152351124','3'],'지정된 취소 메시지, 기존 계좌 및 잔액 불변','중복 계좌 생성 및 재입력 강제',check=lambda o,b,c,f:must(DUP in o and '등록할 비밀번호' not in o and b==BASE and c==0))
 run('TC-20','신규 등록 최대 수','100개 등록된 상태에서 추가 등록 거부',['2','3'],'최대 계좌 개수 초과 메시지, 100개 유지','배열 초과 등록',data=account_bytes(100),check=lambda o,b,c,f:must('최대 계좌 개수를 초과' in o and '신규 사용자 이름' not in o and len(rows(b))==100))
-run('TC-21','show_balance','서로 다른 계좌 잔액을 같은 실행에서 조회',LOGIN+['잔액조회','1524','아니오','1','100144523657','1275','잔액조회','1275','아니오','3'],'첫 계좌 10000, 두 번째 25000','공통 잔액 변수 사용에 의한 혼동',check=lambda o,b,c,f:must('현재 귀하의 잔액은 10000원' in o and '현재 귀하의 잔액은 25000원' in o and b==BASE))
+run('TC-21','show_balance','서로 다른 계좌 잔액을 같은 실행에서 조회',LOGIN+['잔액조회','1524','아니오','1','100144523657','잔액조회','1275','아니오','3'],'첫 계좌 10000, 두 번째 25000','공통 잔액 변수 사용에 의한 혼동',check=lambda o,b,c,f:must('현재 귀하의 잔액은 10000원' in o and '현재 귀하의 잔액은 25000원' in o and b==BASE))
 run('TC-22','save_file 입금','입금 직후 EOF로 종료해도 갱신',LOGIN+['입금','5000'],'파일 잔액 15000, .tmp/.bak 없음','종료 시 입금 데이터 유실',check=lambda o,b,c,f:must(balance(b,15000) and not (f/'customer_info.txt.tmp').exists() and not (f/'customer_info.txt.bak').exists()))
 run('TC-23','save_file 출금','출금 직후 EOF 종료 후 갱신',LOGIN+['출금','1524','3000'],'파일 잔액 7000','출금 데이터 유실',check=lambda o,b,c,f:must(balance(b,7000)))
 f=RUNS/'TC-24'
@@ -96,7 +96,7 @@ run('TC-24-A','재실행 준비','첫 프로세스로 입금 저장',LOGIN+['입
 run('TC-24','재실행 잔액 유지','별도 프로세스에서 저장된 잔액 조회',LOGIN+['잔액조회','1524','아니오','3'],'15000 출력','메모리에만 저장되는 잔액',data=None,folder=f,check=lambda o,b,c,f:must('현재 귀하의 잔액은 15000원' in o and balance(b,15000)))
 f=RUNS/'TC-25'
 run('TC-25-A','재실행 준비','첫 프로세스로 신규 사용자 저장',['2','홍길동','100199999999','1234','3'],'계좌 4개 저장','재실행 준비 상태 검증',folder=f,check=lambda o,b,c,f:must(len(rows(b))==4))
-run('TC-25','재실행 신규 계좌','별도 프로세스에서 신규 계좌 로그인 및 이름 확인',['1','100199999999','1234','잔액조회','1234','네','홍길동','3'],'0원 조회, 실명 확인, 잔액조회 로그','신규 계좌 또는 한글 이름 유실',data=None,folder=f,check=lambda o,b,c,f:must('현재 귀하의 잔액은 0원' in o and '실명 확인 되었습니다.' in o and len(rows(b))==4))
+run('TC-25','재실행 신규 계좌','별도 프로세스에서 신규 계좌 로그인 및 이름 확인',['1','100199999999','잔액조회','1234','네','홍길동','3'],'0원 조회, 실명 확인, 잔액조회 로그','신규 계좌 또는 한글 이름 유실',data=None,folder=f,check=lambda o,b,c,f:must('현재 귀하의 잔액은 0원' in o and '실명 확인 되었습니다.' in o and len(rows(b))==4))
 run('TC-26','save_file 실패','임시 경로를 디렉터리로 만들어 입금 저장 실패',LOGIN+['입금','5000','잔액조회','1524','네','김백제','3'],'거래 취소, 메모리/파일 10000, 입금 로그 없음, 종료 코드 1','실패를 성공으로 표시 또는 메모리 잔액 변경',setup=lambda f:(f/'customer_info.txt.tmp').mkdir(exist_ok=True),check=lambda o,b,c,f:must('거래가 취소되었습니다.' in o and '현재 귀하의 잔액은 10000원' in o and '1. 잔액조회' in o and '1. 입금' not in o and b==BASE and c==1))
 run('TC-27','read_number','메뉴와 입금 위치에 문자 입력',['abc',*LOGIN,'입금','hello','메인메뉴','3'],'입력 오류 2회 이상, 데이터 불변','문자로 인한 반복문 멈춤 및 잘못된 숫자 사용',check=lambda o,b,c,f:must(o.count('입력값이 잘못 되었습니다.')>=2 and b==BASE and c==0))
 run('TC-28','정수 범위 검사','long long와 short 범위 초과 입력',['9223372036854775808','2','홍길동','100199999999','32768',*LOGIN,'입금','9223372036854775808','메인메뉴','3'],'범위 초과 거부, 신규 등록 취소, 3개 및 잔액 보존','정수 오버플로 및 비밀번호 형 변환 오류',check=lambda o,b,c,f:must(o.count('입력값이 잘못 되었습니다.')>=2 and '비밀번호가 잘못되었습니다.' in o and b==BASE))

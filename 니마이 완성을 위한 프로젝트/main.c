@@ -117,17 +117,6 @@ start_menu:
 			printf("입력하신 계좌번호를 찾을 수 없습니다.\n");
 			continue;
 		}
-		{
-			short input_pw;
-			printf("등록된 계좌의 비밀번호를 입력하십시오.:");
-			input_result = read_password(&input_pw);
-			if (input_result == -1) goto finish;
-			if (input_result != 1 || !check_password(human_list, account_index, input_pw))
-			{
-				printf("비밀번호가 틀립니다.\n");
-				continue;
-			}
-		}
 		break;
 	}
 

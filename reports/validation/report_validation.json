@@ -2,7 +2,7 @@
   "page_count": 28,
   "docx_export": "Microsoft Word PDF export",
   "render": "Poppler page PNG",
-  "visual_review": "All changed pages 5, 6, 14, 22, 23, 24, 25 inspected; remaining 21 pages pixel-identical to inspected version",
+  "visual_review": "All 28 pages rendered and visually reviewed after account-only entry change",
   "console_results": "Actual execution transcripts reproduced in monospace, not IDE screenshots",
   "original_customer_files": "SHA-256 unchanged",
   "report_test_identifiers": "Removed from table rows, headings, captions and body references; DOCX/PDF checked",
@@ -16,8 +16,9 @@
     "restart balance persistence"
   ],
   "table_of_contents": "Removed",
-  "reference_format": "User supplied Word report; original headings, author details, first sections, 3 diagrams, margins and table formats retained",
+  "reference_format": "Original user Word layout retained; authentication requirement, main source and execution transcripts updated",
   "code_check": "All three code blocks exactly match current CP949 repository sources",
   "original_reference": "Unchanged",
-  "highlight_scope": "Only read_file and save_file definitions; all other code unhighlighted"
+  "highlight_scope": "Only read_file and save_file definitions; all other code unhighlighted",
+  "authentication_flow": "Account number enters work menu; no password for entry or deposit; password retained for withdrawal, transfer and balance inquiry"
 }
